@@ -8,13 +8,11 @@ def procesar_cadena(cadena):
         if (estado_actual, simbolo) in transiciones:
             nuevo_estado = transiciones[(estado_actual, simbolo)]
 
-            # Si pasamos de q3 a un estado final por un símbolo NO letra, debemos procesar palabra antes
             if estado_actual == "q3" and nuevo_estado != "q3":
                 lexer("q4", lexema_actual)
                 lexema_actual = ""
                 estado_actual = estado_inicial
-                # No consumas el símbolo aún, vuelve a analizarlo
-                continue
+                continue  # Reanaliza el mismo símbolo
 
             estado_actual = nuevo_estado
             lexema_actual += simbolo
@@ -24,17 +22,14 @@ def procesar_cadena(cadena):
                 lexer(estado_actual, lexema_actual)
                 estado_actual = estado_inicial
                 lexema_actual = ""
-
         else:
             if estado_actual == "q3" and lexema_actual:
                 lexer("q4", lexema_actual)
                 estado_actual = estado_inicial
                 lexema_actual = ""
-                continue  # no avanzamos i, se reanaliza el mismo símbolo
+                continue
             else:
-                if lexema_actual:
-                    print(f"ERROR: Secuencia inválida '{lexema_actual + simbolo}'")
-                    lexema_actual = ""
+                print(f"ERROR: Símbolo inválido '{simbolo}'")
                 estado_actual = estado_inicial
                 i += 1
 
@@ -42,7 +37,6 @@ def procesar_cadena(cadena):
         lexer("q4", lexema_actual)
 
     print("Fin de archivo.")
-
 
 def lexer(estado_final, lexema):
     if estado_final == "q1":
@@ -53,12 +47,18 @@ def lexer(estado_final, lexema):
         print(f"LEXEMA: '{lexema}' → Tipo: PALABRA")
     elif estado_final == "q5":
         print(f"LEXEMA: '{lexema}' → Tipo: EXCLAMACION")
+    elif estado_final == "q6":
+        print(f"LEXEMA: ' ' → Tipo: ESPACIO")
+    elif estado_final == "q7":
+        print(f"LEXEMA: '\\t' → Tipo: TABULACION")
+    elif estado_final == "q8":
+        print(f"LEXEMA: '\\n' → Tipo: SALTO_LINEA")
     else:
         print(f"LEXEMA: '{lexema}' → Tipo: ERROR")
 
 
 # Autómata
-estados = {"q0", "q1", "q2", "q3", "q4", "q5"}
+estados = {"q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"}
 letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 transiciones = {}
 
@@ -67,16 +67,19 @@ for letra in letras:
     transiciones[("q0", letra)] = "q3"
     transiciones[("q3", letra)] = "q3"
 
-# Simbolos individuales
+# Caracteres especiales únicos
 transiciones[("q0", "<")] = "q1"
 transiciones[("q0", "?")] = "q2"
 transiciones[("q0", "!")] = "q5"
+transiciones[("q0", " ")] = "q6"
+transiciones[("q0", "\t")] = "q7"
+transiciones[("q0", "\n")] = "q8"
 
 estado_inicial = "q0"
-estados_finales = {"q1", "q2", "q4", "q5"}
+estados_finales = {"q1", "q2", "q4", "q5", "q6", "q7", "q8"}
 
 # Leer entrada
 with open("entrada.txt", "r", encoding="utf-8") as archivo:
-    contenido = archivo.read().strip()
-    print(f"Procesando: {contenido}")
+    contenido = archivo.read()
+    print(f"Procesando: {repr(contenido)}")  # repr para visualizar \n, \t
     procesar_cadena(contenido)
