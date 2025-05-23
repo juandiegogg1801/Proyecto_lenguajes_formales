@@ -66,7 +66,7 @@ def lexer(estado_final, lexema):
     elif estado_final == "q2":
         print(f"LEXEMA: '{lexema}' → Tipo: PREGUNTA")
     elif estado_final == "q4":
-        print(f"LEXEMA: '{lexema}' → Tipo: PALABRA")
+        print(f"LEXEMA: '{lexema}' → Tipo: ALFANUMERICO")
     elif estado_final == "q5":
         print(f"LEXEMA: '{lexema}' → Tipo: EXCLAMACION")
     elif estado_final == "q6":
@@ -106,6 +106,10 @@ transiciones = {}
 for letra in letras:
     transiciones[("q0", letra)] = "q3"
     transiciones[("q3", letra)] = "q3"
+
+# Permitir letras + números (identificadores alfanuméricos)
+for numero in numeros:
+    transiciones[("q3", numero)] = "q3"
 
 # Números → q9 (enteros)
 for numero in numeros:
