@@ -1,15 +1,18 @@
+#Obtiene el ultimo caracter de una cadena
 def obtener_ultimo_caracter(cadena):
     if cadena:  # Verifica que la cadena no esté vacía
         return cadena[-1]
     else:
         return None  # O puedes lanzar una excepción si prefieres
 
+#Obtiene el penultimo caracter de una cadena
 def obtener_penultimo_caracter(cadena):
     if len(cadena) >= 2:
         return cadena[-2]
     else:
         return None  # O lanzar una excepción si prefieres
 
+#Separa los últimos dos caracteres de una cadena
 def separar_ultimos_dos(cadena):
     if len(cadena) >= 2:
         parte_principal = cadena[:-2]  # Todo menos los últimos dos
@@ -17,7 +20,7 @@ def separar_ultimos_dos(cadena):
     else:
         return "", cadena  # Si la cadena tiene menos de 2 caracteres
 
-
+#Separa el último caracter de una cadena
 def separar_ultimo(cadena):
     if len(cadena) >= 2:
         parte_principal = cadena[:-1]  # Todo menos los últimos dos
@@ -25,39 +28,36 @@ def separar_ultimo(cadena):
     else:
         return "", cadena  # Si la cadena tiene menos de 2 caracteres
 
+#Se procesa el archivo completo
 def procesar_cadena(cadena):
     estado_actual = estado_inicial
     lexema_actual = ""
     i = 0
     while i < len(cadena):
         simbolo = cadena[i]
-
+        #Si existe una transición
         if (estado_actual, simbolo) in transiciones:
             nuevo_estado = transiciones[(estado_actual, simbolo)]
             estado_actual = nuevo_estado
             lexema_actual += simbolo
             i += 1
-
             if estado_actual in estados_finales and estado_actual not in {"q3", "q9", "q11"}:
                 lexer(estado_actual, lexema_actual)
                 estado_actual = estado_inicial
                 lexema_actual = ""
 
+        #Si no existe transición
         else:
-            # Aquí detectas si estabas en medio de una palabra o número antes de cambiar de tipo
             if estado_actual == "q3":
                 lexer("q4", lexema_actual)
             elif estado_actual == "q9":
-                #devolver el ultimo simbolo del lexema
                 lexema_actual = lexema_actual + simbolo
                 penultimo_caracter = obtener_penultimo_caracter(lexema_actual)
                 if penultimo_caracter == ".":
-                    #se quitan los ultimos 2 caracteres
                     primera_parte = separar_ultimos_dos(lexema_actual)
                     lexer("q9", primera_parte)
                     lexer("q18", penultimo_caracter)
                 else:
-                    #se quita el ultimo caracter
                     primera_parte = separar_ultimo(lexema_actual)
                     lexer("q9", primera_parte)
             elif estado_actual == "q10":
@@ -81,16 +81,13 @@ def procesar_cadena(cadena):
     if estado_actual == "q3":
         lexer("q4", lexema_actual)
     elif estado_actual == "q9":
-        # devolver el ultimo simbolo del lexema
         lexema_actual = lexema_actual + simbolo
         penultimo_caracter = obtener_penultimo_caracter(lexema_actual)
         if penultimo_caracter == ".":
-            # se quitan los ultimos 2 caracteres
             primera_parte = separar_ultimos_dos(lexema_actual)
             lexer("q9", primera_parte)
             lexer("q18", penultimo_caracter)
         else:
-            # se quita el ultimo caracter
             primera_parte = separar_ultimo(lexema_actual)
             lexer("q9", primera_parte)
     elif estado_actual == "q10":
@@ -102,9 +99,9 @@ def procesar_cadena(cadena):
         lexema_actual = lexema_actual + simbolo
         primera_parte = separar_ultimo(lexema_actual)
         lexer("q9", primera_parte)
-
     print("Fin de archivo.")
 
+# Se muestra el lexer y el tipo
 def lexer(estado_final, lexema):
     if estado_final == "q1":
         print(f"LEXEMA: '{lexema}' → Tipo: MENOR_QUE")
@@ -256,7 +253,7 @@ estados_finales = {"q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9",
                    "q27", "q28", "q29", "q30","q31", "q32", "q33", "q34",
                    "q35", "q36", "q37", "q38", "q39", "q40", "q41"}
 
-# Leer entrada
+# Leer archivo
 with open("entrada.txt", "r", encoding="utf-8") as archivo:
     contenido = archivo.read()
     print(f"Procesando: {repr(contenido)}")
