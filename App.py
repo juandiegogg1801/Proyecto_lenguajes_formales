@@ -1,3 +1,30 @@
+def obtener_ultimo_caracter(cadena):
+    if cadena:  # Verifica que la cadena no esté vacía
+        return cadena[-1]
+    else:
+        return None  # O puedes lanzar una excepción si prefieres
+
+def obtener_penultimo_caracter(cadena):
+    if len(cadena) >= 2:
+        return cadena[-2]
+    else:
+        return None  # O lanzar una excepción si prefieres
+
+def separar_ultimos_dos(cadena):
+    if len(cadena) >= 2:
+        parte_principal = cadena[:-2]  # Todo menos los últimos dos
+        return parte_principal
+    else:
+        return "", cadena  # Si la cadena tiene menos de 2 caracteres
+
+
+def separar_ultimo(cadena):
+    if len(cadena) >= 2:
+        parte_principal = cadena[:-1]  # Todo menos los últimos dos
+        return parte_principal
+    else:
+        return "", cadena  # Si la cadena tiene menos de 2 caracteres
+
 def procesar_cadena(cadena):
     estado_actual = estado_inicial
     lexema_actual = ""
@@ -7,25 +34,6 @@ def procesar_cadena(cadena):
 
         if (estado_actual, simbolo) in transiciones:
             nuevo_estado = transiciones[(estado_actual, simbolo)]
-
-            if estado_actual == "q3" and nuevo_estado != "q3":
-                lexer("q4", lexema_actual)
-                lexema_actual = ""
-                estado_actual = estado_inicial
-                continue
-
-            if estado_actual == "q9" and nuevo_estado not in {"q9", "q10", "q11"}:
-                lexer("q9", lexema_actual)
-                lexema_actual = ""
-                estado_actual = estado_inicial
-                continue
-
-            if estado_actual == "q11" and nuevo_estado not in {"q11"}:
-                lexer("q9", lexema_actual)
-                lexema_actual = ""
-                estado_actual = estado_inicial
-                continue
-
             estado_actual = nuevo_estado
             lexema_actual += simbolo
             i += 1
@@ -37,26 +45,63 @@ def procesar_cadena(cadena):
 
         else:
             # Aquí detectas si estabas en medio de una palabra o número antes de cambiar de tipo
-            if estado_actual == "q3" and lexema_actual:
+            if estado_actual == "q3":
                 lexer("q4", lexema_actual)
-            elif estado_actual in {"q9", "q11"} and lexema_actual:
-                lexer("q9", lexema_actual)
-            elif estado_actual in estados_finales and lexema_actual:
-                lexer(estado_actual, lexema_actual)
+            elif estado_actual == "q9":
+                #devolver el ultimo simbolo del lexema
+                lexema_actual = lexema_actual + simbolo
+                penultimo_caracter = obtener_penultimo_caracter(lexema_actual)
+                if penultimo_caracter == ".":
+                    #se quitan los ultimos 2 caracteres
+                    primera_parte = separar_ultimos_dos(lexema_actual)
+                    lexer("q9", primera_parte)
+                    lexer("q18", penultimo_caracter)
+                else:
+                    #se quita el ultimo caracter
+                    primera_parte = separar_ultimo(lexema_actual)
+                    lexer("q9", primera_parte)
+            elif estado_actual == "q10":
+                lexema_actual = lexema_actual + simbolo
+                penultimo_caracter = obtener_penultimo_caracter(lexema_actual)
+                primera_parte = separar_ultimos_dos(lexema_actual)
+                lexer("q9", primera_parte)
+                lexer("q18", penultimo_caracter)
+            elif estado_actual == "q11":
+                lexema_actual = lexema_actual + simbolo
+                primera_parte = separar_ultimo(lexema_actual)
+                lexer("q9", primera_parte)
             else:
                 print(f"ERROR: Símbolo inválido '{simbolo}'")
+                i += 1
             estado_actual = estado_inicial
             lexema_actual = ""
-            # OJO: No pierdas el símbolo actual, vuelve a analizarlo
             continue
 
     # Al final, procesa el último lexema si quedó pendiente
-    if estado_actual == "q3" and lexema_actual:
+    if estado_actual == "q3":
         lexer("q4", lexema_actual)
-    elif estado_actual in {"q9", "q11"} and lexema_actual:
-        lexer("q9", lexema_actual)
-    elif estado_actual in estados_finales and lexema_actual:
-        lexer(estado_actual, lexema_actual)
+    elif estado_actual == "q9":
+        # devolver el ultimo simbolo del lexema
+        lexema_actual = lexema_actual + simbolo
+        penultimo_caracter = obtener_penultimo_caracter(lexema_actual)
+        if penultimo_caracter == ".":
+            # se quitan los ultimos 2 caracteres
+            primera_parte = separar_ultimos_dos(lexema_actual)
+            lexer("q9", primera_parte)
+            lexer("q18", penultimo_caracter)
+        else:
+            # se quita el ultimo caracter
+            primera_parte = separar_ultimo(lexema_actual)
+            lexer("q9", primera_parte)
+    elif estado_actual == "q10":
+        ultimo_caracter = obtener_ultimo_caracter(lexema_actual)
+        primera_parte = separar_ultimo(lexema_actual)
+        lexer("q9", primera_parte)
+        lexer("q18", ultimo_caracter)
+    elif estado_actual == "q11":
+        lexema_actual = lexema_actual + simbolo
+        primera_parte = separar_ultimo(lexema_actual)
+        lexer("q9", primera_parte)
 
     print("Fin de archivo.")
 
@@ -66,7 +111,7 @@ def lexer(estado_final, lexema):
     elif estado_final == "q2":
         print(f"LEXEMA: '{lexema}' → Tipo: PREGUNTA")
     elif estado_final == "q4":
-        print(f"LEXEMA: '{lexema}' → Tipo: ALFANUMERICO")
+        print(f"LEXEMA: '{lexema}' → Tipo: PALABRA")
     elif estado_final == "q5":
         print(f"LEXEMA: '{lexema}' → Tipo: EXCLAMACION")
     elif estado_final == "q6":
@@ -107,21 +152,15 @@ for letra in letras:
     transiciones[("q0", letra)] = "q3"
     transiciones[("q3", letra)] = "q3"
 
-# Permitir letras + números (identificadores alfanuméricos)
-for numero in numeros:
-    transiciones[("q3", numero)] = "q3"
-
-# Números → q9 (enteros)
+# Números
 for numero in numeros:
     transiciones[("q0", numero)] = "q9"
     transiciones[("q9", numero)] = "q9"
+    transiciones[("q10", numero)] = "q11"
     transiciones[("q11", numero)] = "q11"
 
 # Punto decimal
 transiciones[("q9", ".")] = "q10"
-# Números después del punto
-for numero in numeros:
-    transiciones[("q10", numero)] = "q11"
 
 # Caracteres especiales
 transiciones[("q0", "<")] = "q1"
@@ -140,7 +179,7 @@ transiciones[("q0", ".")] = "q18"
 transiciones[("q0", "'")] = "q19"
 
 estado_inicial = "q0"
-estados_finales = {"q1", "q2", "q4", "q5", "q6", "q7", "q8", "q9", "q11", "q12", "q13", "q14", "q15", "q16", "q17", "q18"}
+estados_finales = {"q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q11", "q12", "q13", "q14", "q15", "q16", "q17", "q18", "q19"}
 
 # Leer entrada
 with open("entrada.txt", "r", encoding="utf-8") as archivo:

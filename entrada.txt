@@ -1,15 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>Ejemplo XHTML con CSS</title>
-  </head>
-
-  <body>
-    <h1>Bienvenido al sitio</h1>
-    <p>Este es un párrafo de ejemplo en XHTML con estilos CSS embebidos.</p>
-    <p>Visita la <a href="https://www.ejemplo.com">página oficial</a> para más información.</p>
-  </body>
-</html>
+"*http://www.33w3./aa1
