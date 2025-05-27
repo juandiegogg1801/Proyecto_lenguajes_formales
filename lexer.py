@@ -7,21 +7,52 @@ def encontrar_indice(simbolo):
             i += 1
     return None  # Muy importante
 
+def bucar_punto(lexema_actual):
+    for lex in lexema_actual:
+        if lex == '.':
+            return True
+        else:
+            return False
+
 def lexer(cadena):
     i = 0
+    lexema_actual = ""
     while i < len(cadena):
         simbolo = cadena[i]
         #Si la entrada tiene una salida
         if (estado_inicial, simbolo) in funcion_salida:
             indice = encontrar_indice(simbolo)
-            if indice is not None:
+            if indice is not None and lexema_actual=="": #si esta en el alfabeto
                 print(f"LEXEMA: {alfabeto[indice]} -> TOKEN: {tokens[indice]}")
+                i += 1
             else:
                 #Buscar en letras y numeros
-                print(f"LEXEMA: {simbolo} -> TOKEN: {funcion_salida[(estado_inicial, simbolo)]}")
+                #simbolo y lexema actual letra o vacio
+                if simbolo.isalpha() and (lexema_actual == "" or lexema_actual.isalpha()):
+                    lexema_actual += simbolo
+                    i += 1
+                #simbolo y lexema actual numero  o vacio
+                elif simbolo.isdigit() and (lexema_actual == "" or lexema_actual.isdigit()):
+                    lexema_actual += simbolo
+                    i += 1
+                # lexema actual letra y simbolo no es letra
+                elif lexema_actual.isalpha() and not simbolo.isalpha():
+                    print(f"LEXEMA: {lexema_actual} -> TOKEN: PALABRA")
+                    lexema_actual = ""
+                #lexema actual numero y simbolo no es numero
+                else:
+                    # si lexema actual punto
+                    if simbolo == "." and bucar_punto(lexema_actual)==False:
+                        lexema_actual += simbolo
+                        i += 1
+                    #si no
+                    else:
+                        print(f"LEXEMA: {lexema_actual} -> TOKEN: NUMERO")
+                        lexema_actual = ""
         else:
             print(f"ERROR: Símbolo inválido '{simbolo}'")
-        i += 1
+            i += 1
+
 
 letras = ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúÁÉÍÓÚ"
           "üÜñÑ")
